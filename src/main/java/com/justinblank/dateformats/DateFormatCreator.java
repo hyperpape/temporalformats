@@ -20,14 +20,20 @@ public class DateFormatCreator {
     private static final AtomicInteger CLASS_NUMBER = new AtomicInteger();
 
     public TemporalFormatter generateFormatter(List<String> formatStrings) {
-        ClassBuilder classBuilder = new ClassBuilder("DateFormat" + CLASS_NUMBER.incrementAndGet(),
-                "java/lang/Object",
-                new String[]{"com/justinblank/dateformats/TemporalFormatter"});
-        classBuilder.addEmptyConstructor();
-        Vars vars = new GenericVars("sb", "field");
-        generateFormatMethod(formatStrings, classBuilder, vars);
-        Class<?> cls = new ClassCompiler(classBuilder).generateClass();
-        return null;
+
+        try {
+            ClassBuilder classBuilder = new ClassBuilder("DateFormat" + CLASS_NUMBER.incrementAndGet(),
+                    "java/lang/Object",
+                    new String[]{"com/justinblank/dateformats/TemporalFormatter"});
+            classBuilder.addEmptyConstructor();
+            Vars vars = new GenericVars("sb", "field");
+            generateFormatMethod(formatStrings, classBuilder, vars);
+            Class<?> cls = new ClassCompiler(classBuilder, true).generateClass();
+            return (TemporalFormatter) cls.getConstructors()[0].newInstance();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void generateFormatMethod(List<String> formatStrings, ClassBuilder classBuilder, Vars vars) {
