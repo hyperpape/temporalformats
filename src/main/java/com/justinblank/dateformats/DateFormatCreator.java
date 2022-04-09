@@ -25,7 +25,11 @@ public class DateFormatCreator {
                     "java/lang/Object",
                     new String[]{"com/justinblank/dateformats/TemporalFormatter"});
             classBuilder.addEmptyConstructor();
-
+            // TODO: determine if matters whether we use literal strings or chars
+            classBuilder.addConstant("SLASH", CompilerUtil.STRING_DESCRIPTOR, "/");
+            classBuilder.addConstant("COLON", CompilerUtil.STRING_DESCRIPTOR, ":");
+            classBuilder.addConstant("DASH", CompilerUtil.STRING_DESCRIPTOR, "-");
+            classBuilder.addConstant("T", CompilerUtil.STRING_DESCRIPTOR, "T");
             Vars vars = new GenericVars("time", "sb", "field");
             generateFormatMethod(formatStrings, classBuilder, vars);
             Class<?> cls = new ClassCompiler(classBuilder).generateClass();
@@ -89,16 +93,16 @@ public class DateFormatCreator {
                 case "XXX":
                     break;
                 case "T":
-                    method.call("append", ReferenceType.of(String.class), read("sb"),
-                            getStatic("T", ReferenceType.of(String.class), ReferenceType.of(String.class)));
+                    method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
+                            getStatic("T", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
                     break;
                 case "-":
-                    method.call("append", ReferenceType.of(String.class), read("sb"),
-                            getStatic("DASH", ReferenceType.of(String.class), ReferenceType.of(String.class)));
+                    method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
+                            getStatic("DASH", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
                     break;
                 case ":":
-                    method.call("append", ReferenceType.of(String.class), read("sb"),
-                            getStatic("COLON", ReferenceType.of(String.class), ReferenceType.of(String.class)));
+                    method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
+                            getStatic("COLON", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
                     break;
             }
         }
