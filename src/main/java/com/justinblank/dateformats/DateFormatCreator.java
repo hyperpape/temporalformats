@@ -11,6 +11,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.justinblank.classcompiler.lang.BinaryOperator.lt;
 import static com.justinblank.classcompiler.lang.CodeElement.*;
 import static com.justinblank.classcompiler.lang.Literal.literal;
 
@@ -30,9 +31,10 @@ public class DateFormatCreator {
             classBuilder.addConstant("COLON", CompilerUtil.STRING_DESCRIPTOR, ":");
             classBuilder.addConstant("DASH", CompilerUtil.STRING_DESCRIPTOR, "-");
             classBuilder.addConstant("T", CompilerUtil.STRING_DESCRIPTOR, "T");
+            classBuilder.addConstant("ZERO", CompilerUtil.STRING_DESCRIPTOR, "0");
             Vars vars = new GenericVars("time", "sb", "field");
             generateFormatMethod(formatStrings, classBuilder, vars);
-            Class<?> cls = new ClassCompiler(classBuilder).generateClass();
+            Class<?> cls = new ClassCompiler(classBuilder, true).generateClass();
             return (TemporalFormatter) cls.getConstructors()[0].newInstance();
         }
         catch (Exception e) {
@@ -45,7 +47,6 @@ public class DateFormatCreator {
         arguments.add(CompilerUtil.descriptor(TemporalAccessor.class));
         Method method = classBuilder.mkMethod("format", arguments, CompilerUtil.STRING_DESCRIPTOR, vars);
         method.set("sb", construct(ReferenceType.of(StringBuilder.class), literal(32)));
-        Map<String, String> constants = new HashMap<>();
         for (String s : formatStrings) {
             switch (s) {
                 case "yyyy":
@@ -55,10 +56,15 @@ public class DateFormatCreator {
                                             ReferenceType.of(ChronoField.class)))));
                     break;
                 case "MM":
-                    method.add(call("append", StringBuilder.class, read("sb"),
-                            callInterface("get", Builtin.I, read("time"),
-                                    getStatic("MONTH_OF_YEAR", ReferenceType.of(ChronoField.class),
-                                            ReferenceType.of(ChronoField.class)))));
+                    method.set("field", callInterface("get", Builtin.I, read("time"),
+                            getStatic("MONTH_OF_YEAR", ReferenceType.of(ChronoField.class),
+                                    ReferenceType.of(ChronoField.class))));
+                    method.cond(lt(read("field"), 10)).withBody(
+                            call("append", StringBuilder.class,
+                            read("sb"),
+                            getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                    method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+
                     break;
                 case "dd":
                     method.add(call("append", StringBuilder.class, read("sb"),
