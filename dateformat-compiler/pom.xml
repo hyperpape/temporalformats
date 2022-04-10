@@ -4,14 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.justinblank</groupId>
-    <artifactId>dateformats</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <parent>
+        <artifactId>dateformats</artifactId>
+        <groupId>com.justinblank</groupId>
+        <version>0.1-SNAPSHOT</version>
+    </parent>
 
-    <packaging>pom</packaging>
-    <modules>
-        <module>dateformat-compiler</module>
-    </modules>
+    <groupId>org.example</groupId>
+    <artifactId>dateformat-compiler</artifactId>
+    <version>0.1-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -23,18 +24,6 @@
           <groupId>com.justinblank</groupId>
             <artifactId>mako</artifactId>
 	        <version>0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.8.2</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
