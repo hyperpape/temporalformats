@@ -3,3 +3,4 @@
 target
 scratch
 .jqwik-database
+jmh-result.json

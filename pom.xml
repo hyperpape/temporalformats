@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>dateformat-compiler</module>
+        <module>dateformat-benchmarks</module>
     </modules>
 
     <properties>
