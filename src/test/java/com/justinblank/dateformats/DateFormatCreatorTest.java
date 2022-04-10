@@ -46,8 +46,8 @@ public class DateFormatCreatorTest {
 
     @Test
     public void testCanFormatManyThings() throws Exception {
-        List<String> strings = Arrays.asList("yyyy", "-", "MM", "-", "dd", "-", "HH", ":", "mm", ":", "ss");
+        List<String> strings = Arrays.asList("yyyy", "-", "MM", "-", "dd", " ", "HH", ":", "mm", ":", "ss");
         ZonedDateTime time = ZonedDateTime.of(2022, 1, 2, 15, 4, 5, 666, ZoneId.systemDefault());
-        assertEquals("2022-1-2", new DateFormatCreator().generateFormatter(strings).format(time));
+        assertEquals("2022-01-02 15:04:05", new DateFormatCreator().generateFormatter(strings).format(time));
     }
 }

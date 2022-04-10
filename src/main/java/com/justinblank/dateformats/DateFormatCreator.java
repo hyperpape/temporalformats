@@ -32,9 +32,10 @@ public class DateFormatCreator {
             classBuilder.addConstant("DASH", CompilerUtil.STRING_DESCRIPTOR, "-");
             classBuilder.addConstant("T", CompilerUtil.STRING_DESCRIPTOR, "T");
             classBuilder.addConstant("ZERO", CompilerUtil.STRING_DESCRIPTOR, "0");
+            classBuilder.addConstant("SPACE", CompilerUtil.STRING_DESCRIPTOR, " ");
             Vars vars = new GenericVars("time", "sb", "field");
             generateFormatMethod(formatStrings, classBuilder, vars);
-            Class<?> cls = new ClassCompiler(classBuilder, true).generateClass();
+            Class<?> cls = new ClassCompiler(classBuilder).generateClass();
             return (TemporalFormatter) cls.getConstructors()[0].newInstance();
         }
         catch (Exception e) {
@@ -50,6 +51,7 @@ public class DateFormatCreator {
         for (String s : formatStrings) {
             switch (s) {
                 case "yyyy":
+                    // TODO: padding
                     method.add(call("append", StringBuilder.class, read("sb"),
                             callInterface("get", Builtin.I, read("time"),
                                     getStatic("YEAR", ReferenceType.of(ChronoField.class),
@@ -67,36 +69,63 @@ public class DateFormatCreator {
 
                     break;
                 case "dd":
-                    method.add(call("append", StringBuilder.class, read("sb"),
-                            callInterface("get", Builtin.I, read("time"),
-                                    getStatic("DAY_OF_MONTH", ReferenceType.of(ChronoField.class),
-                                            ReferenceType.of(ChronoField.class)))));
+                    method.set("field", callInterface("get", Builtin.I, read("time"),
+                            getStatic("DAY_OF_MONTH", ReferenceType.of(ChronoField.class),
+                                    ReferenceType.of(ChronoField.class))));
+                    method.cond(lt(read("field"), 10)).withBody(
+                            call("append", StringBuilder.class,
+                                    read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                    method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+
                     break;
                 case "HH":
-                    method.add(call("append", StringBuilder.class, read("sb"),
-                            callInterface("get", Builtin.I, read("time"),
-                                    getStatic("HOUR_OF_DAY", ReferenceType.of(ChronoField.class),
-                                            ReferenceType.of(ChronoField.class)))));
+                    method.set("field", callInterface("get", Builtin.I, read("time"),
+                            getStatic("HOUR_OF_DAY", ReferenceType.of(ChronoField.class),
+                                    ReferenceType.of(ChronoField.class))));
+                    method.cond(lt(read("field"), 10)).withBody(
+                            call("append", StringBuilder.class,
+                                    read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                    method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+
                     break;
                 case "mm":
-                    method.add(call("append", StringBuilder.class, read("sb"),
-                            callInterface("get", Builtin.I, read("time"),
-                                    getStatic("MINUTE_OF_HOUR", ReferenceType.of(ChronoField.class),
-                                            ReferenceType.of(ChronoField.class)))));
+                    method.set("field", callInterface("get", Builtin.I, read("time"),
+                            getStatic("MINUTE_OF_HOUR", ReferenceType.of(ChronoField.class),
+                                    ReferenceType.of(ChronoField.class))));
+                    method.cond(lt(read("field"), 10)).withBody(
+                            call("append", StringBuilder.class,
+                                    read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                    method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+
+
                     break;
                 case "ss":
-                    method.add(call("append", StringBuilder.class, read("sb"),
-                            callInterface("get", Builtin.I, read("time"),
-                                    getStatic("SECOND_OF_MINUTE", ReferenceType.of(ChronoField.class),
-                                            ReferenceType.of(ChronoField.class)))));
+                    method.set("field", callInterface("get", Builtin.I, read("time"),
+                            getStatic("SECOND_OF_MINUTE", ReferenceType.of(ChronoField.class),
+                                    ReferenceType.of(ChronoField.class))));
+                    method.cond(lt(read("field"), 10)).withBody(
+                            call("append", StringBuilder.class,
+                                    read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                    method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+
+
                     break;
                 case "SSS":
+                    // TODO: padding
                     call("append", StringBuilder.class, read("sb"),
                             callInterface("get", Builtin.I, read("time"),
                                     getStatic("MILLI_OF_SECOND", ReferenceType.of(ChronoField.class),
                                             ReferenceType.of(ChronoField.class))));
                             break;
                 case "XXX":
+                    break;
+                case " ":
+                    method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
+                            getStatic("SPACE", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
                     break;
                 case "T":
                     method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
