@@ -31,6 +31,7 @@ public class DateFormatCreator {
             classBuilder.addConstant("T", CompilerUtil.STRING_DESCRIPTOR, "T");
             classBuilder.addConstant("ZERO", CompilerUtil.STRING_DESCRIPTOR, "0");
             classBuilder.addConstant("SPACE", CompilerUtil.STRING_DESCRIPTOR, " ");
+            classBuilder.addConstant("DOT", CompilerUtil.STRING_DESCRIPTOR, ".");
             Vars vars = new GenericVars("time", "sb", "field");
             generateFormatMethod(formatStrings, classBuilder, vars);
             Class<?> cls = new ClassCompiler(classBuilder).generateClass();
@@ -109,16 +110,22 @@ public class DateFormatCreator {
                                     read("sb"),
                                     getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
                     method.add(call("append", StringBuilder.class, read("sb"), read("field")));
-
-
                     break;
                 case "SSS":
                     // TODO: padding
-                    call("append", StringBuilder.class, read("sb"),
-                            callInterface("get", Builtin.I, read("time"),
-                                    getStatic("MILLI_OF_SECOND", ReferenceType.of(ChronoField.class),
-                                            ReferenceType.of(ChronoField.class))));
-                            break;
+                    method.set("field", callInterface("get", Builtin.I, read("time"),
+                            getStatic("MILLI_OF_SECOND", ReferenceType.of(ChronoField.class),
+                                    ReferenceType.of(ChronoField.class))));
+                    method.cond(lt(read("field"), 100)).withBody(
+                            call("append", StringBuilder.class,
+                                    read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                    method.cond(lt(read("field"), 10)).withBody(
+                            call("append", StringBuilder.class,
+                                    read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                    method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+                    break;
                 case "XXX":
                     break;
                 case " ":
@@ -132,6 +139,10 @@ public class DateFormatCreator {
                 case "-":
                     method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
                             getStatic("DASH", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
+                    break;
+                case ".":
+                    method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
+                            getStatic("DOT", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
                     break;
                 case ":":
                     method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),

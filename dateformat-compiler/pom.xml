@@ -10,7 +10,7 @@
         <version>0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>justin.blank</groupId>
+    <groupId>com.justinblank</groupId>
     <artifactId>dateformat-compiler</artifactId>
     <version>0.1-SNAPSHOT</version>
 
