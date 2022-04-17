@@ -9,9 +9,11 @@ import java.time.temporal.TemporalAccessor;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.justinblank.classcompiler.lang.BinaryOperator.lt;
+import static com.justinblank.classcompiler.lang.BinaryOperator.*;
 import static com.justinblank.classcompiler.lang.CodeElement.*;
 import static com.justinblank.classcompiler.lang.Literal.literal;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 public class DateFormatCreator {
 
@@ -32,6 +34,8 @@ public class DateFormatCreator {
             classBuilder.addConstant("ZERO", CompilerUtil.STRING_DESCRIPTOR, "0");
             classBuilder.addConstant("SPACE", CompilerUtil.STRING_DESCRIPTOR, " ");
             classBuilder.addConstant("DOT", CompilerUtil.STRING_DESCRIPTOR, ".");
+            classBuilder.addConstant("Z", CompilerUtil.STRING_DESCRIPTOR, "Z");
+            classBuilder.addConstant("PLUS", CompilerUtil.STRING_DESCRIPTOR, "+");
             Vars vars = new GenericVars("time", "sb", "field");
             generateFormatMethod(formatStrings, classBuilder, vars);
             Class<?> cls = new ClassCompiler(classBuilder).generateClass();
@@ -62,8 +66,8 @@ public class DateFormatCreator {
                                     ReferenceType.of(ChronoField.class))));
                     method.cond(lt(read("field"), 10)).withBody(
                             call("append", StringBuilder.class,
-                            read("sb"),
-                            getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
+                                    read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
                     method.add(call("append", StringBuilder.class, read("sb"), read("field")));
 
                     break;
@@ -112,7 +116,6 @@ public class DateFormatCreator {
                     method.add(call("append", StringBuilder.class, read("sb"), read("field")));
                     break;
                 case "SSS":
-                    // TODO: padding
                     method.set("field", callInterface("get", Builtin.I, read("time"),
                             getStatic("MILLI_OF_SECOND", ReferenceType.of(ChronoField.class),
                                     ReferenceType.of(ChronoField.class))));
@@ -127,6 +130,11 @@ public class DateFormatCreator {
                     method.add(call("append", StringBuilder.class, read("sb"), read("field")));
                     break;
                 case "XXX":
+                    if (!classBuilder.hasMethod("")) {
+                        addOffsetMethod(classBuilder);
+                    }
+                    method.call("appendOffset",
+                            ReferenceType.of(StringBuilder.class), thisRef(), read("sb"), read("time"));
                     break;
                 case " ":
                     method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
@@ -151,5 +159,74 @@ public class DateFormatCreator {
             }
         }
         method.returnValue(call("toString", ReferenceType.of(String.class), read("sb")));
+    }
+
+    private void addOffsetMethod(ClassBuilder classBuilder) {
+        List<String> arguments = new ArrayList<>();
+        arguments.add(CompilerUtil.descriptor(StringBuilder.class));
+        arguments.add(CompilerUtil.descriptor(TemporalAccessor.class));
+        var vars = new GenericVars("sb", "time", "field", "absHours", "absMinutes");
+        var method = classBuilder.mkMethod("appendOffset", arguments,
+                CompilerUtil.descriptor(StringBuilder.class), vars);
+        method.set("field", callStatic(CompilerUtil.internalName(Math.class), "toIntExact", Builtin.I,
+                cast(Builtin.L, callInterface("get", Builtin.I, read("time"),
+                        getStatic("OFFSET_SECONDS", ReferenceType.of(ChronoField.class),
+                                ReferenceType.of(ChronoField.class))))));
+        // output +/-/Z
+        method.cond(eq(read("field"), 0))
+                .withBody(returnValue(call("append", StringBuilder.class,
+                        read("sb"),
+                        getStatic("Z", ReferenceType.of(classBuilder.getClassName()),
+                                ReferenceType.of(String.class)))));
+        method.cond(lt(read("field"), 0))
+                .withBody(call("append", StringBuilder.class,
+                        read("sb"),
+                        getStatic("DASH", ReferenceType.of(classBuilder.getClassName()),
+                                ReferenceType.of(String.class))));
+        method.cond(gt(read("field"), 0))
+                .withBody(
+                        call("append", StringBuilder.class, read("sb"),
+                                getStatic("PLUS", ReferenceType.of(classBuilder.getClassName()),
+                                        ReferenceType.of(String.class))));
+        // append hour offset
+        method.set("absHours", callStatic(CompilerUtil.internalName(Math.class), "abs", Builtin.I,
+                mod(div(read("field"), 3600), 100)));
+        method.call("append", StringBuilder.class, read("sb"),
+                // TODO: appending an int rather than a char is suboptimal here
+                div(read("absHours"),10));
+        method.call("append", StringBuilder.class, read("sb"),
+                mod(read("absHours"), 10));
+        // append minutes
+        method.call("append", StringBuilder.class, read("sb"),
+                getStatic("COLON", ReferenceType.of(classBuilder.getClassName()),
+                        ReferenceType.of(String.class)));
+        method.set("absMinutes", callStatic(CompilerUtil.internalName(Math.class), "abs", Builtin.I,
+                mod(div(read("field"), 60), 60)));
+        method.call("append", StringBuilder.class, read("sb"),
+                // TODO: appending an int rather than a char is suboptimal here
+                div(read("absMinutes"),10));
+        method.call("append", StringBuilder.class, read("sb"),
+                mod(read("absMinutes"), 10));
+
+        // totalSeconds = time.get(ChronoField.getOffsetSeconds());
+        // if (totalSeconds < 0) { sb.append('-'); } else { sb.append('+') };
+        //
+        //     int absHours = Math.abs((totalSecs / 3600) % 100);  // anything larger than 99 silently dropped
+        //                int absMinutes = Math.abs((totalSecs / 60) % 60);
+        //                int absSeconds = Math.abs(totalSecs % 60);
+        //                int bufPos = buf.length();
+        //                int output = absHours;
+        //                buf.append(totalSecs < 0 ? "-" : "+");
+        //                if (isPaddedHour() || absHours >= 10) {
+        //                    formatZeroPad(false, absHours, buf);
+        //                } else {
+        //                    buf.append((char) (absHours + '0'));
+        //                }
+        //   private void formatZeroPad(boolean colon, int value, StringBuilder buf) {
+        //            buf.append(colon ? ":" : "")
+        //                    .append((char) (value / 10 + '0'))
+        //                    .append((char) (value % 10 + '0'));
+        //        }
+        method.returnValue(read("sb"));
     }
 }

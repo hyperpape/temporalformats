@@ -25,8 +25,20 @@ public class DateFormatCreatorTest {
     }
 
     @Test
-    public void testCreationOneString() throws Exception {
+    public void testCreationYearWeek() throws Exception {
         List<String> strings = Arrays.asList("YYYY");
+        new DateFormatCreator().generateFormatter(strings);
+    }
+
+    @Test
+    public void testCreationYear() throws Exception {
+        List<String> strings = Arrays.asList("yyyy");
+        new DateFormatCreator().generateFormatter(strings);
+    }
+
+    @Test
+    public void testCreationOffset() throws Exception {
+        List<String> strings = Arrays.asList("XXX");
         new DateFormatCreator().generateFormatter(strings);
     }
 
@@ -58,9 +70,16 @@ public class DateFormatCreatorTest {
     }
 
     @Property
-    void generateLocalDateTimesWithAnnotation(@ForAll @DateTimeRange(min = "2019-01-01T01:32:21", max = "2020-12-31T03:11:11") ZonedDateTime zdt) {
+    void generativeLocalDateTimeFormattingTest(@ForAll @DateTimeRange(min = "2019-01-01T01:32:21", max = "2020-12-31T03:11:11") ZonedDateTime zdt) {
         List<String> strings = Arrays.asList("yyyy", "-", "MM", "-", "dd", "T", "HH", ":", "mm", ":", "ss");
         TemporalFormatter formatter = new DateFormatCreator().generateFormatter(strings);
         assertEquals(formatter.format(zdt), DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(zdt));
+    }
+
+    @Property
+    void generativeOffsetDateTimeFormattingTest(@ForAll @DateTimeRange(min = "2019-01-01T01:32:21", max = "2020-12-31T03:11:11") ZonedDateTime zdt) {
+        List<String> strings = Arrays.asList("yyyy", "-", "MM", "-", "dd", "T", "HH", ":", "mm", ":", "ss", "XXX");
+        TemporalFormatter formatter = new DateFormatCreator().generateFormatter(strings);
+        assertEquals(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zdt), formatter.format(zdt));
     }
 }
