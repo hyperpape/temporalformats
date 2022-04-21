@@ -69,17 +69,5 @@ public class DateFormatCreatorTest {
         assertEquals("2022-01-02 15:04:05", new DateFormatCreator().generateFormatter(strings).format(time));
     }
 
-    @Property
-    void generativeLocalDateTimeFormattingTest(@ForAll @DateTimeRange(min = "2019-01-01T01:32:21", max = "2020-12-31T03:11:11") ZonedDateTime zdt) {
-        List<String> strings = Arrays.asList("yyyy", "-", "MM", "-", "dd", "T", "HH", ":", "mm", ":", "ss");
-        TemporalFormatter formatter = new DateFormatCreator().generateFormatter(strings);
-        assertEquals(formatter.format(zdt), DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(zdt));
-    }
 
-    @Property
-    void generativeOffsetDateTimeFormattingTest(@ForAll @DateTimeRange(min = "2019-01-01T01:32:21", max = "2020-12-31T03:11:11") ZonedDateTime zdt) {
-        List<String> strings = Arrays.asList("yyyy", "-", "MM", "-", "dd", "T", "HH", ":", "mm", ":", "ss", "XXX");
-        TemporalFormatter formatter = new DateFormatCreator().generateFormatter(strings);
-        assertEquals(DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(zdt), formatter.format(zdt));
-    }
 }
