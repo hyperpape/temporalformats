@@ -9,9 +9,12 @@ public class DateFormatBenchmarkTest {
     @Test
     public void testFormats() {
         var bench = new DateFormatBenchmark();
-        assertEquals(bench.testISOOffsetDateTimeDateTimeFormat(), bench.testISOOffsetDateTimeFormatHandWritten());
+        // local dates
+        assertEquals(bench.testISOLocalDateDateTimeFormatter(), bench.testISOLocalDateHandwritten());
+        assertEquals(bench.testISOLocalDateDateTimeFormatter(), bench.testISOLocalDateTemporalFormatter());
 
-        assertEquals(bench.testISOLocalDateTimeDateTimeFormat(), bench.testISOLocalDateTimeFormatHandWritten());
-        assertEquals(bench.testISOLocalDateTimeDateTimeFormat(), bench.testISOLocalDateTimeTemporalFormatter());
+        // local datetimes
+        assertEquals(bench.testISOLocalDateTimeDateTimeFormatter(), bench.testISOLocalDateTimeFormatHandWritten());
+        assertEquals(bench.testISOLocalDateTimeDateTimeFormatter(), bench.testISOLocalDateTimeTemporalFormatter());
     }
 }

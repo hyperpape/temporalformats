@@ -36,14 +36,14 @@ public class DateFormatBenchmarkRolling {
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public String testInstantFormat() {
+    public String testISOOffsetDateTimeDateTimeFormatter() {
         return dtf.format(zdt);
     }
 
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public String testMyFormat() {
+    public String testISOOffsetDateTimeHandWritten() {
         StringBuilder sb = new StringBuilder(29);
         sb.append(zdt.get(ChronoField.YEAR))
                 .append('-');
