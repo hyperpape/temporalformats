@@ -4,6 +4,7 @@ import com.justinblank.classcompiler.*;
 import com.justinblank.classcompiler.lang.Builtin;
 import com.justinblank.classcompiler.lang.ReferenceType;
 
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
@@ -54,11 +55,19 @@ public class DateFormatCreator {
         for (String s : formatStrings) {
             switch (s) {
                 case "yyyy":
-                    // TODO: padding
+                    method.set("field", mod(callInterface("get", Builtin.I, read("time"),
+                            getStatic("YEAR", ReferenceType.of(ChronoField.class),
+                                    ReferenceType.of(ChronoField.class))), 10000));
+                    method.cond(lt(read("field"), 1000))
+                            .withBody(List.of(call("append", StringBuilder.class, read("sb"),
+                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))),
+                                    cond(lt(read("field"), 100)).withBody(
+                                            List.of(call("append", StringBuilder.class, read("sb"),
+                                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))),
+                                            cond(lt(read("field"), 10)).withBody(call("append", StringBuilder.class, read("sb"),
+                                                    getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))))))));
                     method.add(call("append", StringBuilder.class, read("sb"),
-                            callInterface("get", Builtin.I, read("time"),
-                                    getStatic("YEAR", ReferenceType.of(ChronoField.class),
-                                            ReferenceType.of(ChronoField.class)))));
+                            read("field")));
                     break;
                 case "MM":
                     method.set("field", callInterface("get", Builtin.I, read("time"),
@@ -192,7 +201,8 @@ public class DateFormatCreator {
         method.set("absHours", callStatic(CompilerUtil.internalName(Math.class), "abs", Builtin.I,
                 mod(div(read("field"), 3600), 100)));
         method.call("append", StringBuilder.class, read("sb"),
-                // TODO: appending an int rather than a char is suboptimal here
+                // TODO: appending an int rather than a char is suboptimal here--DateTimeFormatter uses some cute char
+                // math
                 div(read("absHours"),10));
         method.call("append", StringBuilder.class, read("sb"),
                 mod(read("absHours"), 10));
@@ -203,30 +213,11 @@ public class DateFormatCreator {
         method.set("absMinutes", callStatic(CompilerUtil.internalName(Math.class), "abs", Builtin.I,
                 mod(div(read("field"), 60), 60)));
         method.call("append", StringBuilder.class, read("sb"),
-                // TODO: appending an int rather than a char is suboptimal here
+                // TODO: appending an int rather than a char is suboptimal here--DateTimeFormatter uses some cute char
+                // math
                 div(read("absMinutes"),10));
         method.call("append", StringBuilder.class, read("sb"),
                 mod(read("absMinutes"), 10));
-
-        // totalSeconds = time.get(ChronoField.getOffsetSeconds());
-        // if (totalSeconds < 0) { sb.append('-'); } else { sb.append('+') };
-        //
-        //     int absHours = Math.abs((totalSecs / 3600) % 100);  // anything larger than 99 silently dropped
-        //                int absMinutes = Math.abs((totalSecs / 60) % 60);
-        //                int absSeconds = Math.abs(totalSecs % 60);
-        //                int bufPos = buf.length();
-        //                int output = absHours;
-        //                buf.append(totalSecs < 0 ? "-" : "+");
-        //                if (isPaddedHour() || absHours >= 10) {
-        //                    formatZeroPad(false, absHours, buf);
-        //                } else {
-        //                    buf.append((char) (absHours + '0'));
-        //                }
-        //   private void formatZeroPad(boolean colon, int value, StringBuilder buf) {
-        //            buf.append(colon ? ":" : "")
-        //                    .append((char) (value / 10 + '0'))
-        //                    .append((char) (value % 10 + '0'));
-        //        }
         method.returnValue(read("sb"));
     }
 }
