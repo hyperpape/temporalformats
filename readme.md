@@ -1,6 +1,5 @@
 # DateFormats
 
-![Badge](https://travis-ci.com/hyperpape/dateformats.svg?branch=main)
 ![Badge](https://www.repostatus.org/badges/latest/wip.svg)
 
 Experiment with generating java classes on the fly for DateFormats. 
