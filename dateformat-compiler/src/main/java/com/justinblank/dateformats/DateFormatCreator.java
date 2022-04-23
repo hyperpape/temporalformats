@@ -4,7 +4,7 @@ import com.justinblank.classcompiler.*;
 import com.justinblank.classcompiler.lang.Builtin;
 import com.justinblank.classcompiler.lang.ReferenceType;
 
-import java.time.LocalDateTime;
+import java.text.ParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
@@ -13,14 +13,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.justinblank.classcompiler.lang.BinaryOperator.*;
 import static com.justinblank.classcompiler.lang.CodeElement.*;
 import static com.justinblank.classcompiler.lang.Literal.literal;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 public class DateFormatCreator {
 
     private static final AtomicInteger CLASS_NUMBER = new AtomicInteger();
 
-    public TemporalFormatter generateFormatter(List<String> formatStrings) {
+    public TemporalFormatter generateFormatter(String formatString) throws ParseException {
+        return generateFormatter(TemporalFormatterSpecParser.splitToComponents(formatString));
+    }
+
+    TemporalFormatter generateFormatter(List<String> formatStrings) {
 
         try {
             ClassBuilder classBuilder = new ClassBuilder("DateFormat" + CLASS_NUMBER.incrementAndGet(),

@@ -21,53 +21,41 @@ public class DateFormatCreatorTest {
 
     @Test
     public void testCreationEmptyFormat() throws Exception {
-        new DateFormatCreator().generateFormatter(new ArrayList<>());
-    }
-
-    @Test
-    public void testCreationYearWeek() throws Exception {
-        List<String> strings = Arrays.asList("YYYY");
-        new DateFormatCreator().generateFormatter(strings);
+        new DateFormatCreator().generateFormatter("");
     }
 
     @Test
     public void testCreationYear() throws Exception {
-        List<String> strings = Arrays.asList("yyyy");
-        new DateFormatCreator().generateFormatter(strings);
+        new DateFormatCreator().generateFormatter("yyyy");
     }
 
     @Test
     public void testCreationOffset() throws Exception {
-        List<String> strings = Arrays.asList("XXX");
-        new DateFormatCreator().generateFormatter(strings);
+        new DateFormatCreator().generateFormatter("XXX");
     }
 
     @Test
     public void testCreationTwoStrings() throws Exception {
-        List<String> strings = Arrays.asList("SSS", "SSS");
-        new DateFormatCreator().generateFormatter(strings);
+        new DateFormatCreator().generateFormatter("SSSSSS");
     }
 
     @Test
     public void testCanFormatMonth() throws Exception {
-        List<String> strings = Arrays.asList("MM");
         ZonedDateTime time = ZonedDateTime.of(2022, 1, 2, 15, 4, 5, 666, ZoneId.systemDefault());
-        assertEquals("01", new DateFormatCreator().generateFormatter(strings).format(time));
+        assertEquals("01", new DateFormatCreator().generateFormatter("MM").format(time));
     }
 
     @Test
     public void testCanFormatYear() throws Exception {
-        List<String> strings = Arrays.asList("yyyy");
         ZonedDateTime time = ZonedDateTime.of(2022, 1, 1, 1, 1, 1, 1, ZoneId.systemDefault());
-        assertEquals("2022", new DateFormatCreator().generateFormatter(strings).format(time));
+        assertEquals("2022", new DateFormatCreator().generateFormatter("yyyy").format(time));
     }
 
     @Test
     public void testCanFormatManyThings() throws Exception {
         List<String> strings = Arrays.asList("yyyy", "-", "MM", "-", "dd", " ", "HH", ":", "mm", ":", "ss");
         ZonedDateTime time = ZonedDateTime.of(2022, 1, 2, 15, 4, 5, 666, ZoneId.systemDefault());
-        assertEquals("2022-01-02 15:04:05", new DateFormatCreator().generateFormatter(strings).format(time));
+        assertEquals("2022-01-02 15:04:05", new DateFormatCreator().generateFormatter("yyyy-MM-dd HH:mm:ss").format(time));
     }
-
 
 }

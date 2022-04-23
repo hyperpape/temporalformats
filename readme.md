@@ -13,7 +13,7 @@ Preliminary results suggest it's significantly faster than the standard library 
 ## Usage
 
 ```Java
-TemporalFormatter formatter = DateFormatCreator.generateFormatter(List.of("yyyy-MM-dd"));
+TemporalFormatter formatter = DateFormatCreator.generateFormatter("yyyy-MM-dd");
 formatter.format(Instant.now()); // "2022-04-21"
 ```
 
