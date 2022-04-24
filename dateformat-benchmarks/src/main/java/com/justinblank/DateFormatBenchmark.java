@@ -61,7 +61,6 @@ public class DateFormatBenchmark {
         return StandardFormats.ISO_LOCAL_TIME.format(zdt);
     }
 
-
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.NANOSECONDS)

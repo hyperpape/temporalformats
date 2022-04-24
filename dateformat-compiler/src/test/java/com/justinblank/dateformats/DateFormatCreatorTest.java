@@ -1,20 +1,13 @@
 package com.justinblank.dateformats;
 
-import net.jqwik.api.ForAll;
-import net.jqwik.api.Property;
-import net.jqwik.time.api.constraints.DateTimeRange;
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DateFormatCreatorTest {
@@ -37,6 +30,11 @@ public class DateFormatCreatorTest {
     @Test
     public void testCreationTwoStrings() throws Exception {
         new DateFormatCreator().generateFormatter("SSSSSS");
+    }
+
+    @Test
+    public void testCreationFormatSpecifierWithChronoField() throws Exception {
+        new DateFormatCreator().generateFormatter(List.of(FormatSpecifier.fieldSpecifier(ChronoField.NANO_OF_SECOND, 0, 9, '.')));
     }
 
     @Test

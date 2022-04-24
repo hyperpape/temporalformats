@@ -26,9 +26,9 @@ public class TemporalFormatterPatternParser {
         SUPPORTED_COMPONENTS = new HashSet<>(supported);
     }
 
-    public static List<String> splitToComponents(String string) throws ParseException {
+    public static List<FormatSpecifier> splitToComponents(String string) throws ParseException {
         Objects.requireNonNull(string, "Cannot parse a null dateformat string");
-        List<String> components = new ArrayList<>();
+        List<FormatSpecifier> components = new ArrayList<>();
         var i = 0;
         // YOLO: O(n^2)
         while (i < string.length()) {
@@ -36,7 +36,7 @@ public class TemporalFormatterPatternParser {
             for (var candidate : SUPPORTED_COMPONENTS) {
                 if (i + candidate.length() <= string.length()) {
                     if (string.substring(i, i + candidate.length()).equals(candidate)) {
-                        components.add(candidate);
+                        components.add(FormatSpecifier.ofString(candidate));
                         i += candidate.length();
                         break;
                     }
