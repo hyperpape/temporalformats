@@ -3,7 +3,7 @@ package com.justinblank.dateformats;
 import java.text.ParseException;
 import java.util.*;
 
-public class TemporalFormatterSpecParser {
+public class TemporalFormatterPatternParser {
 
     public static final Set<String> SUPPORTED_COMPONENTS;
 

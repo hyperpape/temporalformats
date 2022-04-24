@@ -19,7 +19,7 @@ public class DateFormatCreator {
     private static final AtomicInteger CLASS_NUMBER = new AtomicInteger();
 
     public TemporalFormatter generateFormatter(String formatString) throws ParseException {
-        return generateFormatter(TemporalFormatterSpecParser.splitToComponents(formatString));
+        return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString));
     }
 
     TemporalFormatter generateFormatter(List<String> formatStrings) {

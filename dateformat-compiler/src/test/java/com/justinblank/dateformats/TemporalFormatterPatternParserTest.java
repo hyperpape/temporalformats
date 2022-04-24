@@ -3,12 +3,11 @@ package com.justinblank.dateformats;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
-import static com.justinblank.dateformats.TemporalFormatterSpecParser.splitToComponents;
+import static com.justinblank.dateformats.TemporalFormatterPatternParser.splitToComponents;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TemporalFormatterSpecParserTest {
+class TemporalFormatterPatternParserTest {
 
     @Test
     void testSplitToComponents() throws Exception {
