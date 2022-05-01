@@ -69,88 +69,39 @@ public class TemporalFormatCreator {
             if (fs.formatString != null) {
                 switch (fs.formatString) {
                     case "yyyy":
-                        method.set("field", mod(callInterface("get", Builtin.I, read("time"),
-                                getStatic("YEAR", ReferenceType.of(ChronoField.class),
-                                        ReferenceType.of(ChronoField.class))), 10000));
-                        method.cond(lt(read("field"), 1000))
-                                .withBody(List.of(call("append", StringBuilder.class, read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))),
-                                        cond(lt(read("field"), 100)).withBody(
-                                                List.of(call("append", StringBuilder.class, read("sb"),
-                                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))),
-                                                        cond(lt(read("field"), 10)).withBody(call("append", StringBuilder.class, read("sb"),
-                                                                getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))))))));
-                        method.add(call("append", StringBuilder.class, read("sb"),
-                                read("field")));
+                        method.callStatic(CompilerUtil.internalName(TemporalFormatterComponents.class),
+                                "formatyyyy", ReferenceType.of(StringBuilder.class), read("time"),
+                                read("sb"));
                         break;
                     case "MM":
-                        method.set("field", callInterface("get", Builtin.I, read("time"),
-                                getStatic("MONTH_OF_YEAR", ReferenceType.of(ChronoField.class),
-                                        ReferenceType.of(ChronoField.class))));
-                        method.cond(lt(read("field"), 10)).withBody(
-                                call("append", StringBuilder.class,
-                                        read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
-                        method.add(call("append", StringBuilder.class, read("sb"), read("field")));
-
+                        method.callStatic(CompilerUtil.internalName(TemporalFormatterComponents.class),
+                                "formatMM", ReferenceType.of(StringBuilder.class), read("time"),
+                                read("sb"));
                         break;
                     case "dd":
-                        method.set("field", callInterface("get", Builtin.I, read("time"),
-                                getStatic("DAY_OF_MONTH", ReferenceType.of(ChronoField.class),
-                                        ReferenceType.of(ChronoField.class))));
-                        method.cond(lt(read("field"), 10)).withBody(
-                                call("append", StringBuilder.class,
-                                        read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
-                        method.add(call("append", StringBuilder.class, read("sb"), read("field")));
-
+                        method.callStatic(CompilerUtil.internalName(TemporalFormatterComponents.class),
+                                "formatdd", ReferenceType.of(StringBuilder.class), read("time"),
+                                read("sb"));
                         break;
                     case "HH":
-                        method.set("field", callInterface("get", Builtin.I, read("time"),
-                                getStatic("HOUR_OF_DAY", ReferenceType.of(ChronoField.class),
-                                        ReferenceType.of(ChronoField.class))));
-                        method.cond(lt(read("field"), 10)).withBody(
-                                call("append", StringBuilder.class,
-                                        read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
-                        method.add(call("append", StringBuilder.class, read("sb"), read("field")));
-
+                        method.callStatic(CompilerUtil.internalName(TemporalFormatterComponents.class),
+                                "formatHH", ReferenceType.of(StringBuilder.class), read("time"),
+                                read("sb"));
                         break;
                     case "mm":
-                        method.set("field", callInterface("get", Builtin.I, read("time"),
-                                getStatic("MINUTE_OF_HOUR", ReferenceType.of(ChronoField.class),
-                                        ReferenceType.of(ChronoField.class))));
-                        method.cond(lt(read("field"), 10)).withBody(
-                                call("append", StringBuilder.class,
-                                        read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
-                        method.add(call("append", StringBuilder.class, read("sb"), read("field")));
-
-
+                        method.callStatic(CompilerUtil.internalName(TemporalFormatterComponents.class),
+                                "formatmm", ReferenceType.of(StringBuilder.class), read("time"),
+                                read("sb"));
                         break;
                     case "ss":
-                        method.set("field", callInterface("get", Builtin.I, read("time"),
-                                getStatic("SECOND_OF_MINUTE", ReferenceType.of(ChronoField.class),
-                                        ReferenceType.of(ChronoField.class))));
-                        method.cond(lt(read("field"), 10)).withBody(
-                                call("append", StringBuilder.class,
-                                        read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
-                        method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+                        method.callStatic(CompilerUtil.internalName(TemporalFormatterComponents.class),
+                                "formatss", ReferenceType.of(StringBuilder.class), read("time"),
+                                read("sb"));
                         break;
                     case "SSS":
-                        method.set("field", callInterface("get", Builtin.I, read("time"),
-                                getStatic("MILLI_OF_SECOND", ReferenceType.of(ChronoField.class),
-                                        ReferenceType.of(ChronoField.class))));
-                        method.cond(lt(read("field"), 100)).withBody(
-                                call("append", StringBuilder.class,
-                                        read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
-                        method.cond(lt(read("field"), 10)).withBody(
-                                call("append", StringBuilder.class,
-                                        read("sb"),
-                                        getStatic("ZERO", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))));
-                        method.add(call("append", StringBuilder.class, read("sb"), read("field")));
+                        method.callStatic(CompilerUtil.internalName(TemporalFormatterComponents.class),
+                                "formatSSS", ReferenceType.of(StringBuilder.class), read("time"),
+                                read("sb"));
                         break;
                     case "XXX":
                         // TODO: adding the proper method name here results in truncated class file exception--why?!
