@@ -1,5 +1,6 @@
 package com.justinblank;
 
+import com.justinblank.dateformats.StandardFormats;
 import org.openjdk.jmh.annotations.*;
 
 import java.text.SimpleDateFormat;
@@ -33,17 +34,92 @@ public class DateFormatBenchmarkRolling {
         return zdt;
     }
 
+    // TODO
+    // The behavior of SSS is different from the DateTimeFormatter, figure out how to fix
+    // SimpleDateFormat isoOffsetDateTimeSDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    // SimpleDateFormat isoLocalDateTimeSDF = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+//    @Benchmark
+//    @BenchmarkMode(Mode.AverageTime)
+//    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+//    public String testISOOffsetDateTimeSimpleDateFormat() {
+//        return isoOffsetDateTimeSDF.format(date);
+//    }
+
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public String testISOOffsetDateTimeDateTimeFormatter() {
-        return dtf.format(zdt);
+    public String testISOLocalDateDateTimeFormatter() {
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(zdt);
     }
 
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.NANOSECONDS)
-    public String testISOOffsetDateTimeHandWritten() {
+    public String testISOLocalDateTemporalFormatter() {
+        return StandardFormats.ISO_LOCAL_DATE.format(zdt);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String testISOLocalTimeDateTimeFormatter() {
+        return DateTimeFormatter.ISO_LOCAL_TIME.format(zdt);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String testISOLocalTimeTemporalFormatter() {
+        return StandardFormats.ISO_LOCAL_TIME.format(zdt);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String testISOLocalDateHandwritten() {
+        StringBuilder sb = new StringBuilder(10);
+        sb.append(zdt.get(ChronoField.YEAR))
+                .append('-');
+        long month = zdt.get(ChronoField.MONTH_OF_YEAR);
+        if (month < 10) {
+            sb.append('0');
+        }
+        sb.append(month)
+                .append('-');
+        long dayOfMonth = zdt.get(ChronoField.DAY_OF_MONTH);
+        if (dayOfMonth < 10) {
+            sb.append('0');
+        }
+        sb.append(dayOfMonth);
+        return sb.toString();
+    }
+
+//    @Benchmark
+//    @BenchmarkMode(Mode.AverageTime)
+//    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+//    public String testISOLocalDateTimeSimpleDateFormat() {
+//        return isoLocalDateTimeSDF.format(date);
+//    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String testISOLocalDateTimeDateTimeFormatter() {
+        return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(zdt);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String testISOLocalDateTimeTemporalFormatter() {
+        return StandardFormats.ISO_LOCAL_DATE_TIME.format(zdt);
+    }
+
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.NANOSECONDS)
+    public String testISOLocalDateTimeFormatHandWritten() {
         StringBuilder sb = new StringBuilder(29);
         sb.append(zdt.get(ChronoField.YEAR))
                 .append('-');
@@ -85,7 +161,6 @@ public class DateFormatBenchmarkRolling {
             }
         }
         sb.append(millis);
-        sb.append(zdt.getOffset());
         return sb.toString();
     }
 }
