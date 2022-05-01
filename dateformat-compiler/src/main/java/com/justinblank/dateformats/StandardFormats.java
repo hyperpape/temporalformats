@@ -15,7 +15,7 @@ public class StandardFormats {
 
     static TemporalFormatter isoOffsetDateTime() {
         try {
-            return new DateFormatCreator().generateFormatter("yyyy-MM-ddTHH:mm:ss.SSSXXX", "ISOOffsetDateTime");
+            return new TemporalFormatCreator().generateFormatter("yyyy-MM-ddTHH:mm:ss.SSSXXX", "ISOOffsetDateTime");
         }
         catch (ParseException e) {
             throw new RuntimeException(e);
@@ -36,12 +36,12 @@ public class StandardFormats {
         formatSpecifiers.add(FormatSpecifier.ofString(":"));
         formatSpecifiers.add(FormatSpecifier.ofString("ss"));
         formatSpecifiers.add(FormatSpecifier.fieldSpecifier(ChronoField.MILLI_OF_SECOND, 0, 3, '.'));
-        return new DateFormatCreator().generateFormatter(formatSpecifiers, "ISOLocalDateTime");
+        return new TemporalFormatCreator().generateFormatter(formatSpecifiers, "ISOLocalDateTime");
     }
 
     static TemporalFormatter isoLocalDate() {
         try {
-            return new DateFormatCreator().generateFormatter("yyyy-MM-dd", "ISOLocalDate");
+            return new TemporalFormatCreator().generateFormatter("yyyy-MM-dd", "ISOLocalDate");
         }
         catch (ParseException e) {
             throw new RuntimeException(e);
@@ -56,6 +56,6 @@ public class StandardFormats {
         formatSpecifiers.add(FormatSpecifier.ofString(":"));
         formatSpecifiers.add(FormatSpecifier.ofString("ss"));
         formatSpecifiers.add(FormatSpecifier.fieldSpecifier(ChronoField.NANO_OF_SECOND, 0, 9, '.'));
-        return new DateFormatCreator().generateFormatter(formatSpecifiers, "ISOLocalTime");
+        return new TemporalFormatCreator().generateFormatter(formatSpecifiers, "ISOLocalTime");
     }
 }

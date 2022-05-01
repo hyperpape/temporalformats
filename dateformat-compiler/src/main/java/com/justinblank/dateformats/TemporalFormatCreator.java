@@ -17,7 +17,7 @@ import static com.justinblank.classcompiler.lang.CodeElement.*;
 import static com.justinblank.classcompiler.lang.Literal.literal;
 import static com.justinblank.classcompiler.lang.UnaryOperator.not;
 
-public class DateFormatCreator {
+public class TemporalFormatCreator {
 
     private static final AtomicInteger CLASS_NUMBER = new AtomicInteger();
 
@@ -29,12 +29,11 @@ public class DateFormatCreator {
         return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), className);
     }
 
-    TemporalFormatter generateFormatter(List<FormatSpecifier> formatStrings) {
+    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatStrings) {
         return generateFormatter(formatStrings, nextClassName());
     }
 
-    TemporalFormatter generateFormatter(List<FormatSpecifier> formatStrings, String name) {
-
+    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatStrings, String name) {
         try {
             ClassBuilder classBuilder = new ClassBuilder(name,
                     "java/lang/Object",
