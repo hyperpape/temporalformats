@@ -2,6 +2,7 @@ package com.justinblank.dateformats;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
@@ -34,7 +35,8 @@ public class TemporalFormatCreatorTest {
 
     @Test
     public void testCreationFormatSpecifierWithChronoField() throws Exception {
-        new TemporalFormatCreator().generateFormatter(List.of(FormatSpecifier.fieldSpecifier(ChronoField.NANO_OF_SECOND, 0, 9, '.')));
+        TemporalFormatter temporalFormatter = new TemporalFormatCreator().generateFormatter(List.of(FormatSpecifier.fieldSpecifier(ChronoField.NANO_OF_SECOND, 0, 9, '.')));
+        temporalFormatter.format(Instant.now());
     }
 
     @Test
