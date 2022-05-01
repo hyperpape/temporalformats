@@ -12,6 +12,7 @@
     <modules>
         <module>dateformat-compiler</module>
         <module>dateformat-benchmarks</module>
+        <module>dateformat-core</module>
     </modules>
 
     <properties>
