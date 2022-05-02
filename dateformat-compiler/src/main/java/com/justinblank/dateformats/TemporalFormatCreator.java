@@ -4,8 +4,14 @@ import com.justinblank.classcompiler.*;
 import com.justinblank.classcompiler.lang.Builtin;
 import com.justinblank.classcompiler.lang.ReferenceType;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
@@ -35,28 +41,40 @@ public class TemporalFormatCreator {
 
     public TemporalFormatter generateFormatter(List<FormatSpecifier> formatStrings, String name) {
         try {
-            ClassBuilder classBuilder = new ClassBuilder(name,
-                    "java/lang/Object",
-                    new String[]{"com/justinblank/dateformats/TemporalFormatter"});
-            classBuilder.addEmptyConstructor();
-            // TODO: determine if matters whether we use literal strings or chars
-            classBuilder.addConstant("SLASH", CompilerUtil.STRING_DESCRIPTOR, "/");
-            classBuilder.addConstant("COLON", CompilerUtil.STRING_DESCRIPTOR, ":");
-            classBuilder.addConstant("DASH", CompilerUtil.STRING_DESCRIPTOR, "-");
-            classBuilder.addConstant("T", CompilerUtil.STRING_DESCRIPTOR, "T");
-            classBuilder.addConstant("ZERO", CompilerUtil.STRING_DESCRIPTOR, "0");
-            classBuilder.addConstant("SPACE", CompilerUtil.STRING_DESCRIPTOR, " ");
-            classBuilder.addConstant("DOT", CompilerUtil.STRING_DESCRIPTOR, ".");
-            classBuilder.addConstant("Z", CompilerUtil.STRING_DESCRIPTOR, "Z");
-            classBuilder.addConstant("PLUS", CompilerUtil.STRING_DESCRIPTOR, "+");
-            Vars vars = new GenericVars("time", "sb", "field", "extraString"); // TODO: names/optional argument
-            generateFormatMethod(formatStrings, classBuilder, vars);
+            ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatStrings, name);
             Class<?> cls = new ClassCompiler(classBuilder).generateClass();
             return (TemporalFormatter) cls.getConstructors()[0].newInstance();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void precompileTemporalFormatter(List<FormatSpecifier> formatSpecifiers, String className, String fileName)
+            throws IOException {
+        ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, className);
+        byte[] bytes = new ClassCompiler(classBuilder).generateClassAsBytes();
+        Files.write(Path.of(URI.create(fileName)), bytes, StandardOpenOption.CREATE_NEW);
+    }
+
+    public ClassBuilder prepareTemporalFormatterClassBuilder(List<FormatSpecifier> formatStrings, String name) {
+        ClassBuilder classBuilder = new ClassBuilder(name,
+                "java/lang/Object",
+                new String[]{"com/justinblank/dateformats/TemporalFormatter"});
+        classBuilder.addEmptyConstructor();
+        // TODO: determine if matters whether we use literal strings or chars
+        classBuilder.addConstant("SLASH", CompilerUtil.STRING_DESCRIPTOR, "/");
+        classBuilder.addConstant("COLON", CompilerUtil.STRING_DESCRIPTOR, ":");
+        classBuilder.addConstant("DASH", CompilerUtil.STRING_DESCRIPTOR, "-");
+        classBuilder.addConstant("T", CompilerUtil.STRING_DESCRIPTOR, "T");
+        classBuilder.addConstant("ZERO", CompilerUtil.STRING_DESCRIPTOR, "0");
+        classBuilder.addConstant("SPACE", CompilerUtil.STRING_DESCRIPTOR, " ");
+        classBuilder.addConstant("DOT", CompilerUtil.STRING_DESCRIPTOR, ".");
+        classBuilder.addConstant("Z", CompilerUtil.STRING_DESCRIPTOR, "Z");
+        classBuilder.addConstant("PLUS", CompilerUtil.STRING_DESCRIPTOR, "+");
+        Vars vars = new GenericVars("time", "sb", "field", "extraString"); // TODO: names/optional argument
+        generateFormatMethod(formatStrings, classBuilder, vars);
+        return classBuilder;
     }
 
     private void generateFormatMethod(List<FormatSpecifier> formatStrings, ClassBuilder classBuilder, Vars vars) {
