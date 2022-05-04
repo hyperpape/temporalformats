@@ -27,21 +27,44 @@ public class TemporalFormatCreator {
 
     private static final AtomicInteger CLASS_NUMBER = new AtomicInteger();
 
+    /**
+     * Generate a TemporalFormatter class for the given list of FormatSpecifier instances.
+     * @param formatString the format string, e.g. "yyyy-MM-dd". See TemporalFormatterPatternParser for supported
+     *                     components
+     * @return an instance of the TemporalFormatter generated
+     */
     public TemporalFormatter generateFormatter(String formatString) throws ParseException {
         return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), nextClassName());
     }
 
+    /**
+     * Generate a TemporalFormatter class for the given list of FormatSpecifier instances.
+     * @param formatString the specifiers
+     * @param className the name of the generated class
+     * @return an instance of the TemporalFormatter generated
+     */
     public TemporalFormatter generateFormatter(String formatString, String className) throws ParseException {
         return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), className);
     }
 
-    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatStrings) {
-        return generateFormatter(formatStrings, nextClassName());
+    /**
+     * Generate a TemporalFormatter class for the given list of FormatSpecifier instances.
+     * @param formatSpecifiers the specifiers
+     * @return an instance of the TemporalFormatter generated
+     */
+    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers) {
+        return generateFormatter(formatSpecifiers, nextClassName());
     }
 
-    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatStrings, String name) {
+    /**
+     * Generate a TemporalFormatter class for the given list of FormatSpecifier instances.
+     * @param formatSpecifiers the specifiers
+     * @param className the name of the generated class
+     * @return an instance of the TemporalFormatter generated
+     */
+    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers, String className) {
         try {
-            ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatStrings, name);
+            ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, className);
             Class<?> cls = new ClassCompiler(classBuilder).generateClass();
             return (TemporalFormatter) cls.getConstructors()[0].newInstance();
         }
@@ -50,15 +73,28 @@ public class TemporalFormatCreator {
         }
     }
 
-    public void precompileTemporalFormatter(List<FormatSpecifier> formatSpecifiers, String className, String fileName)
+    /**
+     * Generate and write a TemporalFormatter classFile to the specified location
+     * @param formatSpecifiers the list of FormatSpecifiers for the formatter
+     * @param className the name of the generated class
+     * @param fileName the location of the file to be written
+     * @throws IOException in case the file cannot be written
+     */
+    public void writeTemporalFormatterClassFile(List<FormatSpecifier> formatSpecifiers, String className, String fileName)
             throws IOException {
         ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, className);
         byte[] bytes = new ClassCompiler(classBuilder).generateClassAsBytes();
         Files.write(Path.of(URI.create(fileName)), bytes, StandardOpenOption.CREATE_NEW);
     }
 
-    public ClassBuilder prepareTemporalFormatterClassBuilder(List<FormatSpecifier> formatStrings, String name) {
-        ClassBuilder classBuilder = new ClassBuilder(name,
+    /**
+     * Generate a class formatter for the passed FormatSpecifiers, with the passed className
+     * @param formatSpecifiers the list of FormatSpecifiers to be used
+     * @param className the name of the generated class
+     * @return a ClassBuilder instance that is ready to be compiled to bytecode
+     */
+    public ClassBuilder prepareTemporalFormatterClassBuilder(List<FormatSpecifier> formatSpecifiers, String className) {
+        ClassBuilder classBuilder = new ClassBuilder(className,
                 "java/lang/Object",
                 new String[]{"com/justinblank/dateformats/TemporalFormatter"});
         classBuilder.addEmptyConstructor();
@@ -73,7 +109,7 @@ public class TemporalFormatCreator {
         classBuilder.addConstant("Z", CompilerUtil.STRING_DESCRIPTOR, "Z");
         classBuilder.addConstant("PLUS", CompilerUtil.STRING_DESCRIPTOR, "+");
         Vars vars = new GenericVars("time", "sb", "field", "extraString"); // TODO: names/optional argument
-        generateFormatMethod(formatStrings, classBuilder, vars);
+        generateFormatMethod(formatSpecifiers, classBuilder, vars);
         return classBuilder;
     }
 
