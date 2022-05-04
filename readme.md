@@ -1,11 +1,11 @@
-# DateFormats
+# TemporalFormatters
 
 ![Badge](https://www.repostatus.org/badges/latest/wip.svg)
 
-Experiment with generating java classes on the fly for DateFormats. 
+Experiment with generating java classes on the fly for date formatting. 
 
-The dateformatters in the standard library parse the dateformat into a set of objects, which are successively called to
-parse or generate output. This suggests an optimization of generating code specified to the particular
+The DateTimeFormatter in the standard library parses the dateformat into a set of objects, which are successively called
+to parse or generate output. This suggests an optimization of generating code specified to the particular
 format, and that's what this library does.
 
 Preliminary results suggest it's significantly faster than the standard library DateTimeFormatter class.
@@ -17,7 +17,7 @@ from the standard library. Not all of its pattern elements are supported yet, wi
 TemporalFormatterPatternParser.
 
 ```Java
-TemporalFormatter formatter = DateFormatCreator.generateFormatter("yyyy-MM-dd");
+TemporalFormatter formatter = TemporalFormatCreator.generateFormatter("yyyy-MM-dd");
 formatter.format(Instant.now()); // "2022-04-21"
 ```
 
