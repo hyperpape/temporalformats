@@ -33,7 +33,7 @@ public class TemporalFormatCreator {
      *                     components
      * @return an instance of the TemporalFormatter generated
      */
-    public TemporalFormatter generateFormatter(String formatString) throws ParseException {
+    public static TemporalFormatter generateFormatter(String formatString) throws ParseException {
         return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), nextClassName());
     }
 
@@ -43,7 +43,7 @@ public class TemporalFormatCreator {
      * @param className the name of the generated class
      * @return an instance of the TemporalFormatter generated
      */
-    public TemporalFormatter generateFormatter(String formatString, String className) throws ParseException {
+    public static TemporalFormatter generateFormatter(String formatString, String className) throws ParseException {
         return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), className);
     }
 
@@ -52,7 +52,7 @@ public class TemporalFormatCreator {
      * @param formatSpecifiers the specifiers
      * @return an instance of the TemporalFormatter generated
      */
-    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers) {
+    public static TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers) {
         return generateFormatter(formatSpecifiers, nextClassName());
     }
 
@@ -62,7 +62,7 @@ public class TemporalFormatCreator {
      * @param className the name of the generated class
      * @return an instance of the TemporalFormatter generated
      */
-    public TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers, String className) {
+    public static TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers, String className) {
         try {
             ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, className);
             Class<?> cls = new ClassCompiler(classBuilder).generateClass();
@@ -80,7 +80,7 @@ public class TemporalFormatCreator {
      * @param fileName the location of the file to be written
      * @throws IOException in case the file cannot be written
      */
-    public void writeTemporalFormatterClassFile(List<FormatSpecifier> formatSpecifiers, String className, String fileName)
+    public static void writeTemporalFormatterClassFile(List<FormatSpecifier> formatSpecifiers, String className, String fileName)
             throws IOException {
         ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, className);
         byte[] bytes = new ClassCompiler(classBuilder).generateClassAsBytes();
@@ -93,7 +93,7 @@ public class TemporalFormatCreator {
      * @param className the name of the generated class
      * @return a ClassBuilder instance that is ready to be compiled to bytecode
      */
-    public ClassBuilder prepareTemporalFormatterClassBuilder(List<FormatSpecifier> formatSpecifiers, String className) {
+    public static ClassBuilder prepareTemporalFormatterClassBuilder(List<FormatSpecifier> formatSpecifiers, String className) {
         ClassBuilder classBuilder = new ClassBuilder(className,
                 "java/lang/Object",
                 new String[]{"com/justinblank/temporalformatter/TemporalFormatter"});
@@ -113,7 +113,7 @@ public class TemporalFormatCreator {
         return classBuilder;
     }
 
-    private void generateFormatMethod(List<FormatSpecifier> formatStrings, ClassBuilder classBuilder, Vars vars) {
+    private static void generateFormatMethod(List<FormatSpecifier> formatStrings, ClassBuilder classBuilder, Vars vars) {
         List<String> arguments = new ArrayList<>();
         arguments.add(CompilerUtil.descriptor(TemporalAccessor.class));
         Method method = classBuilder.mkMethod("format", arguments, CompilerUtil.STRING_DESCRIPTOR, vars);
@@ -211,7 +211,7 @@ public class TemporalFormatCreator {
         method.returnValue(call("toString", ReferenceType.of(String.class), read("sb")));
     }
 
-    private void addConvertToFractionMethod(ClassBuilder classBuilder, FormatSpecifier fs) {
+    private static void addConvertToFractionMethod(ClassBuilder classBuilder, FormatSpecifier fs) {
         List<String> arguments = new ArrayList<>();
         arguments.add("I");
         var vars = new GenericVars("value", "bd");
@@ -230,7 +230,7 @@ public class TemporalFormatCreator {
                 call("stripTrailingZeros", ReferenceType.of(BigDecimal.class), read("bd"))));
     }
 
-    private void addOffsetMethod(ClassBuilder classBuilder) {
+    private static void addOffsetMethod(ClassBuilder classBuilder) {
         List<String> arguments = new ArrayList<>();
         arguments.add(CompilerUtil.descriptor(StringBuilder.class));
         arguments.add(CompilerUtil.descriptor(TemporalAccessor.class));
