@@ -12,10 +12,19 @@ import java.util.concurrent.TimeUnit;
 
 @State(Scope.Benchmark)
 public class DateFormatBenchmark {
+    private Date date;
+    private ZonedDateTime zdt;
 
-    private Date date = new Date();
+    public DateFormatBenchmark() {
+        this(new Date());
+    }
 
-    private ZonedDateTime zdt = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    protected DateFormatBenchmark(Date date) {
+        this.date = date;
+        this.zdt = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+
+    }
+
 
     // TODO
     // The behavior of SSS is different from the DateTimeFormatter, figure out how to fix
@@ -146,8 +155,20 @@ public class DateFormatBenchmark {
             if (millis < 10) {
                 sb.append('0');
             }
+            sb.append(millis);
         }
-        sb.append(millis);
+        else {
+            var milliString = "" + millis;
+            if (milliString.endsWith("0")) {
+                if (milliString.endsWith("00")) {
+                    milliString = milliString.substring(0, 1);
+                }
+                else {
+                    milliString = milliString.substring(0, 2);
+                }
+            }
+            sb.append(milliString);
+        }
         return sb.toString();
     }
 

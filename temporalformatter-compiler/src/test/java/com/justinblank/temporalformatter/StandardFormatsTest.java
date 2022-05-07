@@ -52,4 +52,10 @@ public class StandardFormatsTest {
         ldt = LocalDateTime.of(100001, 1, 1, 1, 1, 1);
         assertEquals(DateTimeFormatter.ISO_LOCAL_TIME.format(ldt), StandardFormats.ISO_LOCAL_TIME.format(ldt));
     }
+
+    @Test
+    void testMillisEndingInZero() {
+        var ldt = LocalDateTime.of(2000, 1, 1, 1, 1, 1, 450 * 1000 * 1000);
+        assertEquals(DateTimeFormatter.ISO_LOCAL_TIME.format(ldt), StandardFormats.ISO_LOCAL_TIME.format(ldt));
+    }
 }
