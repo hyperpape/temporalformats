@@ -4,7 +4,6 @@ import com.justinblank.classcompiler.*;
 import com.justinblank.classcompiler.lang.Builtin;
 import com.justinblank.classcompiler.lang.ReferenceType;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,6 +25,7 @@ import static com.justinblank.classcompiler.lang.UnaryOperator.not;
 public class TemporalFormatCreator {
 
     private static final AtomicInteger CLASS_NUMBER = new AtomicInteger();
+    public static final String DEFAULT_PACKAGE = "com.justinblank.temporalformatter";
 
     /**
      * Generate a TemporalFormatter class for the given list of FormatSpecifier instances.
@@ -34,7 +34,8 @@ public class TemporalFormatCreator {
      * @return an instance of the TemporalFormatter generated
      */
     public static TemporalFormatter generateFormatter(String formatString) throws ParseException {
-        return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), nextClassName());
+        return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString),
+                DEFAULT_PACKAGE, nextClassName());
     }
 
     /**
@@ -43,8 +44,8 @@ public class TemporalFormatCreator {
      * @param className the name of the generated class
      * @return an instance of the TemporalFormatter generated
      */
-    public static TemporalFormatter generateFormatter(String formatString, String className) throws ParseException {
-        return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), className);
+    public static TemporalFormatter generateFormatter(String formatString, String packageName, String className) throws ParseException {
+        return generateFormatter(TemporalFormatterPatternParser.splitToComponents(formatString), packageName, className);
     }
 
     /**
@@ -53,7 +54,7 @@ public class TemporalFormatCreator {
      * @return an instance of the TemporalFormatter generated
      */
     public static TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers) {
-        return generateFormatter(formatSpecifiers, nextClassName());
+        return generateFormatter(formatSpecifiers, DEFAULT_PACKAGE, nextClassName());
     }
 
     /**
@@ -62,9 +63,9 @@ public class TemporalFormatCreator {
      * @param className the name of the generated class
      * @return an instance of the TemporalFormatter generated
      */
-    public static TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers, String className) {
+    public static TemporalFormatter generateFormatter(List<FormatSpecifier> formatSpecifiers, String packageName, String className) {
         try {
-            ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, className);
+            ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, packageName, className);
             Class<?> cls = new ClassCompiler(classBuilder).generateClass();
             return (TemporalFormatter) cls.getConstructors()[0].newInstance();
         }
@@ -80,11 +81,11 @@ public class TemporalFormatCreator {
      * @param fileName the location of the file to be written
      * @throws IOException in case the file cannot be written
      */
-    public static void writeTemporalFormatterClassFile(List<FormatSpecifier> formatSpecifiers, String className, String fileName)
+    public static void writeTemporalFormatterClassFile(List<FormatSpecifier> formatSpecifiers, String packageName, String className, String fileName)
             throws IOException {
-        ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, className);
+        ClassBuilder classBuilder = prepareTemporalFormatterClassBuilder(formatSpecifiers, packageName, className);
         byte[] bytes = new ClassCompiler(classBuilder).generateClassAsBytes();
-        Files.write(Path.of(URI.create(fileName)), bytes, StandardOpenOption.CREATE_NEW);
+        Files.write(Path.of(fileName), bytes, StandardOpenOption.CREATE);
     }
 
     /**
@@ -93,8 +94,8 @@ public class TemporalFormatCreator {
      * @param className the name of the generated class
      * @return a ClassBuilder instance that is ready to be compiled to bytecode
      */
-    public static ClassBuilder prepareTemporalFormatterClassBuilder(List<FormatSpecifier> formatSpecifiers, String className) {
-        ClassBuilder classBuilder = new ClassBuilder(className,
+    static ClassBuilder prepareTemporalFormatterClassBuilder(List<FormatSpecifier> formatSpecifiers, String packageName, String className) {
+        ClassBuilder classBuilder = new ClassBuilder(className, packageName,
                 "java/lang/Object",
                 new String[]{"com/justinblank/temporalformatter/TemporalFormatter"});
         classBuilder.addEmptyConstructor();
@@ -167,23 +168,23 @@ public class TemporalFormatCreator {
                         break;
                     case " ":
                         method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
-                                getStatic("SPACE", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
+                                getStatic("SPACE", ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class)));
                         break;
                     case "T":
                         method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
-                                getStatic("T", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
+                                getStatic("T", ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class)));
                         break;
                     case "-":
                         method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
-                                getStatic("DASH", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
+                                getStatic("DASH", ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class)));
                         break;
                     case ".":
                         method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
-                                getStatic("DOT", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
+                                getStatic("DOT", ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class)));
                         break;
                     case ":":
                         method.call("append", ReferenceType.of(StringBuilder.class), read("sb"),
-                                getStatic("COLON", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class)));
+                                getStatic("COLON", ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class)));
                         break;
                 }
             } else {
@@ -198,7 +199,7 @@ public class TemporalFormatCreator {
                 method.cond(not(eq(read("field"), 0))).withBody(List.of(
                         call("append", ReferenceType.of(StringBuilder.class), read("sb"),
                                 // TODO: shouldn't hard-code dot, should switch on fs class
-                                getStatic("DOT", ReferenceType.of(classBuilder.getClassName()), ReferenceType.of(String.class))),
+                                getStatic("DOT", ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class))),
                         set("extraString", call("convertToFraction", ReferenceType.of(String.class), thisRef(),
                                 read("field"))),
                         call("append", ReferenceType.of(StringBuilder.class), read("sb"),
