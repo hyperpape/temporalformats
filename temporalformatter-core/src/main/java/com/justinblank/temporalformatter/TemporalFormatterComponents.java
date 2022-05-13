@@ -1,14 +1,7 @@
 package com.justinblank.temporalformatter;
 
-import com.justinblank.classcompiler.lang.Builtin;
-import com.justinblank.classcompiler.lang.ReferenceType;
-
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
-
-import static com.justinblank.classcompiler.lang.BinaryOperator.lt;
-import static com.justinblank.classcompiler.lang.CodeElement.*;
-import static com.justinblank.classcompiler.lang.CodeElement.read;
 
 public class TemporalFormatterComponents {
 
