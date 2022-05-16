@@ -35,5 +35,4 @@ Parsing strings into date/time values is not currently supported, but will proba
 
 Requires Java 11, builds with maven. 
 
-Currently depends on having [Mako](https://github.com/hyperpape/mako) locally installed, as I have yet to push that 
-library to maven central.  
+The generated classes are built with Java 8, so they can be precompiled, and included in an application running java 8.
