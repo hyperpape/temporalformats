@@ -8,7 +8,8 @@ The DateTimeFormatter in the standard library parses the dateformat into a set o
 to parse or generate output. This suggests an optimization of generating code specified to the particular
 format, and that's what this library does.
 
-Preliminary results suggest it's significantly faster than the standard library DateTimeFormatter class.
+Preliminary results suggest it's significantly faster than the standard library DateTimeFormatter class
+(see https://justinblank.com/experiments/speedingupdateformats.html for data). 
 
 ## Usage
 
