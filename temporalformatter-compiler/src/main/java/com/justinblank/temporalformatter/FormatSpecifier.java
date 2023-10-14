@@ -44,4 +44,14 @@ class FormatSpecifier {
         }
         return new FormatSpecifier(field, minDigits, maxDigits, divider);
     }
+
+    @Override
+    public String toString() {
+        if (formatString != null) {
+            return formatString;
+        }
+        else {
+            return chronoField.toString() + "{" + minDigits + "," + maxDigits + "}," + divider;
+        }
+    }
 }

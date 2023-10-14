@@ -5,7 +5,7 @@ import java.util.*;
 
 public class TemporalFormatterPatternParser {
 
-    public static final Set<String> SUPPORTED_COMPONENTS;
+    static final Set<String> SUPPORTED_COMPONENTS;
 
     static {
         Set<String> supported = new HashSet<>();
