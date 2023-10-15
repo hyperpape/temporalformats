@@ -26,6 +26,25 @@ public class TemporalFormatCreator {
     private static final AtomicInteger CLASS_NUMBER = new AtomicInteger();
     public static final String DEFAULT_PACKAGE = "com.justinblank.temporalformatter";
 
+    private static final Map<String, String> CONSTANTS = new HashMap<>();
+    private static final Map<String, String> DIVIDERS_TO_CONSTANTS = new HashMap<>();
+
+    static {
+        CONSTANTS.put("SLASH", "/");
+        CONSTANTS.put("COLON", ":");
+        CONSTANTS.put("DASH", "-");
+        CONSTANTS.put("T", "T");
+        CONSTANTS.put("ZERO", "0");
+        CONSTANTS.put("SPACE", " ");
+        CONSTANTS.put("DOT", ".");
+        CONSTANTS.put("Z", "Z");
+        CONSTANTS.put("PLUS", "+");
+
+        for (var e : CONSTANTS.entrySet()) {
+            DIVIDERS_TO_CONSTANTS.put(e.getValue(), e.getKey());
+        }
+    }
+
     /**
      * Generate a TemporalFormatter class for the given list of FormatSpecifier instances.
      * @param formatString the format string, e.g. "yyyy-MM-dd". See TemporalFormatterPatternParser for supported
@@ -98,16 +117,9 @@ public class TemporalFormatCreator {
                 "java/lang/Object",
                 new String[]{"com/justinblank/temporalformatter/TemporalFormatter"});
         classBuilder.addEmptyConstructor();
-        // TODO: determine if matters whether we use literal strings or chars
-        classBuilder.addConstant("SLASH", CompilerUtil.STRING_DESCRIPTOR, "/");
-        classBuilder.addConstant("COLON", CompilerUtil.STRING_DESCRIPTOR, ":");
-        classBuilder.addConstant("DASH", CompilerUtil.STRING_DESCRIPTOR, "-");
-        classBuilder.addConstant("T", CompilerUtil.STRING_DESCRIPTOR, "T");
-        classBuilder.addConstant("ZERO", CompilerUtil.STRING_DESCRIPTOR, "0");
-        classBuilder.addConstant("SPACE", CompilerUtil.STRING_DESCRIPTOR, " ");
-        classBuilder.addConstant("DOT", CompilerUtil.STRING_DESCRIPTOR, ".");
-        classBuilder.addConstant("Z", CompilerUtil.STRING_DESCRIPTOR, "Z");
-        classBuilder.addConstant("PLUS", CompilerUtil.STRING_DESCRIPTOR, "+");
+        for (var entry : CONSTANTS.entrySet()) {
+            classBuilder.addConstant(entry.getKey(), CompilerUtil.STRING_DESCRIPTOR, entry.getValue());
+        }
         Vars vars = new GenericVars("time", "sb", "field", "extraString"); // TODO: names/optional argument
         generateFormatMethod(formatSpecifiers, classBuilder, vars);
         return classBuilder;
@@ -190,14 +202,18 @@ public class TemporalFormatCreator {
                     addConvertToFractionMethod(classBuilder, fs);
                 }
                 var chronoField = fs.chronoField;
+                // TODO: determine if we need to handle dividers outside of our currently supported set
+                var dividerConstant = DIVIDERS_TO_CONSTANTS.get(String.valueOf(fs.divider));
+                if (dividerConstant == null) {
+                    throw new IllegalArgumentException("Divider " + fs.divider + " not recognized");
+                }
 
                 method.set("field", callInterface("get", Builtin.I, read("time"),
                     getStatic(chronoField.name(), ReferenceType.of(ChronoField.class),
                             ReferenceType.of(ChronoField.class))));
                 method.cond(not(eq(read("field"), 0))).withBody(List.of(
                         call("append", ReferenceType.of(StringBuilder.class), read("sb"),
-                                // TODO: shouldn't hard-code dot, should switch on fs class
-                                getStatic("DOT", ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class))),
+                                getStatic(dividerConstant, ReferenceType.of(classBuilder.getFQCN()), ReferenceType.of(String.class))),
                         set("extraString", call("convertToFraction", ReferenceType.of(String.class), thisRef(),
                                 read("field"))),
                         call("append", ReferenceType.of(StringBuilder.class), read("sb"),
