@@ -158,8 +158,7 @@ public class TemporalFormatCreator {
                                 read("sb"));
                         break;
                     case "XXX":
-                        // TODO: adding the proper method name here results in truncated class file exception--why?!
-                        if (!classBuilder.hasMethod("")) {
+                        if (!classBuilder.hasMethod("appendOffset")) {
                             addOffsetMethod(classBuilder);
                         }
                         method.call("appendOffset",
